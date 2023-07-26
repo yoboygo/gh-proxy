@@ -1,6 +1,6 @@
 {
    "rewrites": [
-    { "source": "/(.*)", "destination": "/app/main" },
+    { "source": "/work", "destination": "/app/main" },
     { "source": "/test", "destination": "/app/test" }
   ]
 }
