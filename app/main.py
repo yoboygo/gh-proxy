@@ -38,7 +38,6 @@ ASSET_URL = 'https://hunshcn.github.io/gh-proxy'  # 主页
 white_list = [tuple([x.replace(' ', '') for x in i.split('/')]) for i in white_list.split('\n') if i]
 black_list = [tuple([x.replace(' ', '') for x in i.split('/')]) for i in black_list.split('\n') if i]
 pass_list = [tuple([x.replace(' ', '') for x in i.split('/')]) for i in pass_list.split('\n') if i]
-app = Flask(__name__)
 CHUNK_SIZE = 1024 * 10
 index_html = requests.get(ASSET_URL, timeout=10).text
 icon_r = requests.get(ASSET_URL + '/favicon.ico', timeout=10).content
@@ -50,13 +49,17 @@ exp5 = re.compile(r'^(?:https?://)?gist\.(?:githubusercontent|github)\.com/(?P<a
 
 requests.sessions.default_headers = lambda: CaseInsensitiveDict()
 
+app = Flask(__name__)
 
 @app.route('/')
 def index():
     if 'q' in request.args:
         return redirect('/' + request.args.get('q'))
     return index_html
-
+    
+@app.route('/about')
+def about():
+    return 'About'
 
 @app.route('/favicon.ico')
 def icon():
@@ -189,5 +192,5 @@ def proxy(u, allow_redirects=False):
         return Response('server error ' + str(e), status=500, headers=headers)
 
 app.debug = True
-#if __name__ == '__main__':
-#    app.run(host=HOST, port=PORT)
+if __name__ == '__main__':
+    app.run(host=HOST, port=PORT)
