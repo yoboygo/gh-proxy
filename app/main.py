@@ -59,7 +59,7 @@ def index():
     
 @app.route('/about')
 def about():
-    return 'About'
+    return 'This is work Dir'
 
 @app.route('/favicon.ico')
 def icon():
