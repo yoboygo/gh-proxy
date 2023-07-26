@@ -192,5 +192,5 @@ def proxy(u, allow_redirects=False):
         return Response('server error ' + str(e), status=500, headers=headers)
 
 app.debug = True
-if __name__ == '__main__':
-    app.run(host=HOST, port=PORT)
+#if __name__ == '__main__':
+#    app.run(host=HOST, port=PORT)
