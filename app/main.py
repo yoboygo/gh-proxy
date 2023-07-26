@@ -65,7 +65,6 @@ def about():
 def icon():
     return Response(icon_r, content_type='image/vnd.microsoft.icon')
 
-
 def iter_content(self, chunk_size=1, decode_unicode=False):
     """rewrite requests function, set decode_content with False"""
 
@@ -147,7 +146,6 @@ def proxy(u, allow_redirects=False):
         headers['content-type'] = 'text/html; charset=UTF-8'
         return Response('server error ' + str(e), status=500, headers=headers)
 
-
 @app.route('/<path:u>', methods=['GET', 'POST'])
 def doHandler(u):
     u = u if u.startswith('http') else 'https://' + u
@@ -190,7 +188,7 @@ def doHandler(u):
                 url = 'https://' + url[7:]
             return redirect(url)
         return proxy(u)
-
+        
 app.debug = True
 #if __name__ == '__main__':
 #    app.run(host=HOST, port=PORT)
