@@ -117,7 +117,7 @@ def check_url(u):
 
 
 @app.route('/<path:u>', methods=['GET', 'POST'])
-def handler(u):
+def doHandler(u):
     u = u if u.startswith('http') else 'https://' + u
     if u.rfind('://', 3, 9) == -1:
         u = u.replace('s:/', 's://', 1)  # uwsgi会将//传递为/
