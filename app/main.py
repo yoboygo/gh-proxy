@@ -116,6 +116,38 @@ def check_url(u):
     return False
 
 
+def proxy(u, allow_redirects=False):
+    headers = {}
+    r_headers = dict(request.headers)
+    if 'Host' in r_headers:
+        r_headers.pop('Host')
+    try:
+        url = u + request.url.replace(request.base_url, '', 1)
+        if url.startswith('https:/') and not url.startswith('https://'):
+            url = 'https://' + url[7:]
+        r = requests.request(method=request.method, url=url, data=request.data, headers=r_headers, stream=True, allow_redirects=allow_redirects)
+        headers = dict(r.headers)
+
+        if 'Content-length' in r.headers and int(r.headers['Content-length']) > size_limit:
+            return redirect(u + request.url.replace(request.base_url, '', 1))
+
+        def generate():
+            for chunk in iter_content(r, chunk_size=CHUNK_SIZE):
+                yield chunk
+
+        if 'Location' in r.headers:
+            _location = r.headers.get('Location')
+            if check_url(_location):
+                headers['Location'] = '/' + _location
+            else:
+                return proxy(_location, True)
+
+        return Response(generate(), headers=headers, status=r.status_code)
+    except Exception as e:
+        headers['content-type'] = 'text/html; charset=UTF-8'
+        return Response('server error ' + str(e), status=500, headers=headers)
+
+
 @app.route('/<path:u>', methods=['GET', 'POST'])
 def doHandler(u):
     u = u if u.startswith('http') else 'https://' + u
@@ -158,38 +190,6 @@ def doHandler(u):
                 url = 'https://' + url[7:]
             return redirect(url)
         return proxy(u)
-
-
-def proxy(u, allow_redirects=False):
-    headers = {}
-    r_headers = dict(request.headers)
-    if 'Host' in r_headers:
-        r_headers.pop('Host')
-    try:
-        url = u + request.url.replace(request.base_url, '', 1)
-        if url.startswith('https:/') and not url.startswith('https://'):
-            url = 'https://' + url[7:]
-        r = requests.request(method=request.method, url=url, data=request.data, headers=r_headers, stream=True, allow_redirects=allow_redirects)
-        headers = dict(r.headers)
-
-        if 'Content-length' in r.headers and int(r.headers['Content-length']) > size_limit:
-            return redirect(u + request.url.replace(request.base_url, '', 1))
-
-        def generate():
-            for chunk in iter_content(r, chunk_size=CHUNK_SIZE):
-                yield chunk
-
-        if 'Location' in r.headers:
-            _location = r.headers.get('Location')
-            if check_url(_location):
-                headers['Location'] = '/' + _location
-            else:
-                return proxy(_location, True)
-
-        return Response(generate(), headers=headers, status=r.status_code)
-    except Exception as e:
-        headers['content-type'] = 'text/html; charset=UTF-8'
-        return Response('server error ' + str(e), status=500, headers=headers)
 
 app.debug = True
 #if __name__ == '__main__':
